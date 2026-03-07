@@ -1,6 +1,6 @@
 @echo off
 cd C:\YOUR\PATH\TO\Assignment-Dashboard
-start /min python -m http.server
+wscript server_hidden.vbs
 python scraper.py > scraper.log 2>&1
 
 
