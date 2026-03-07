@@ -2,5 +2,6 @@ session.json
 canvas_session.json
 assignments.json
 config.json
+start_server.bat
 .env
 __pycache__/
