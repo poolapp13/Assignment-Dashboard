@@ -39,10 +39,10 @@ OR click the green **Code** button on GitHub and select **Download ZIP**, then e
 ## Step 3 — Install dependencies
 
 Open a terminal inside the project folder and run:
-
+```
 pip install -r requirements.txt
 playwright install chromium
-
+```
 
 This installs all the required libraries and downloads the browser Playwright uses. It may take a few minutes.
 
