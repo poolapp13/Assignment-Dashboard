@@ -396,11 +396,15 @@
 
     <div class="stats" id="statsBar"></div>
 
-    <div class="filters">
-      <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
-      <button class="filter-btn" onclick="setFilter('urgent', this)">Due Soon</button>
-      <button class="filter-btn" onclick="setFilter('canvas', this)">Canvas</button>
-      <button class="filter-btn" onclick="setFilter('gradescope', this)">Gradescope</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+      <div class="filters" style="margin-bottom:0">
+        <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+        <button class="filter-btn" onclick="setFilter('urgent', this)">Due Soon</button>
+        <button class="filter-btn" onclick="setFilter('canvas', this)">Canvas</button>
+        <button class="filter-btn" onclick="setFilter('gradescope', this)">Gradescope</button>
+      </div>
+      <button class="filter-btn" id="refreshBtn" onclick="refreshData()" style="border:1px solid var(--border)">↻
+        Refresh</button>
     </div>
 
     <div class="assignment-list" id="assignmentList"></div>
@@ -587,6 +591,32 @@
       }
 
       window.open(url, "_blank");
+    }
+    function refreshData() {
+      const btn = document.getElementById('refreshBtn');
+      btn.textContent = 'Refreshing...';
+      btn.disabled = true;
+
+      fetch('http://localhost:8001/refresh')
+        .then(() => {
+          return fetch('assignments.json?nocache=' + Date.now());
+        })
+        .then(r => r.json())
+        .then(data => {
+          allData = data.assignments;
+          const updated = new Date(data.last_updated);
+          const hoursAgo = Math.round((new Date() - updated) / 1000 / 3600);
+          const label = hoursAgo === 0 ? "just now" : hoursAgo === 1 ? "1 hour ago" : `${hoursAgo} hours ago`;
+          document.getElementById('lastUpdated').textContent = "Updated " + label;
+          btn.textContent = '↻ Refresh';
+          btn.disabled = false;
+          render();
+        })
+        .catch(() => {
+          btn.textContent = '↻ Refresh';
+          btn.disabled = false;
+          alert('Refresh failed — make sure the refresh server is running.');
+        });
     }
   </script>
 </body>

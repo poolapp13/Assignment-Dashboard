@@ -91,7 +91,7 @@ You'll see all your upcoming assignments sorted by due date with color-coded urg
 ## Step 7 — Set up automatic updates (Windows)
 
 1. Copy `start_server.bat.example` and rename it to `start_server.bat`
-2. Repeat with `run_silent.vbs.example`
+2. Repeat with `run_silent.vbs.example` and `refresh_hidden.vbs.example`
 3. Open them and replace the path with your actual project folder path
    - To find your path, open a terminal in the project folder and run `pwd`
 4. Add `run_silent.vbs` to Task Scheduler set to run on login

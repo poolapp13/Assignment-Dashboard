@@ -1,6 +1,7 @@
 @echo off
 cd C:\YOUR\PATH\TO\Assignment-Dashboard
 wscript server_hidden.vbs
+wscript refresh_hidden.vbs
 python scraper.py > scraper.log 2>&1
 
 

@@ -4,5 +4,9 @@ assignments.json
 config.json
 start_server.bat
 scraper.log
+run_silent.vbs
+refresh_hidden.vbs
+server_hidden.vbs
+
 .env
 __pycache__/
