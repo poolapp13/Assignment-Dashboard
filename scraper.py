@@ -4,6 +4,30 @@ from datetime import datetime
 import json
 import os
 
+# Create sessions if they don't exist
+if not os.path.exists("session.json") or not os.path.exists("canvas_session.json"):
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=False)
+
+        if not os.path.exists("session.json"):
+            context = browser.new_context()
+            page = context.new_page()
+            page.goto("https://www.gradescope.com")
+            input("Log into Gradescope, then press Enter...")
+            context.storage_state(path="session.json")
+            print("Gradescope session saved!")
+            browser.close()
+
+        if not os.path.exists("canvas_session.json"):
+            browser = p.chromium.launch(headless=False)
+            context = browser.new_context()
+            page = context.new_page()
+            page.goto("https://canvas.its.virginia.edu")
+            input("Log into Canvas, then press Enter...")
+            context.storage_state(path="canvas_session.json")
+            print("Canvas session saved!")
+            browser.close()
+
 from dateutil import parser as dateparser
 
 
