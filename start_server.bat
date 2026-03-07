@@ -1,0 +1,3 @@
+@echo off
+cd C:\Users\jiemi\Python\Assignment-Dashboard
+start /min python -m http.server

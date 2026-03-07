@@ -13,7 +13,7 @@ base_url = f"https://{config['canvas_url']}"
 # Create sessions if they don't exist
 if not os.path.exists("session.json") or not os.path.exists("canvas_session.json"):
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
+        browser = p.chromium.launch(headless=True)
 
         if not os.path.exists("session.json"):
             context = browser.new_context()
@@ -25,7 +25,7 @@ if not os.path.exists("session.json") or not os.path.exists("canvas_session.json
             browser.close()
 
         if not os.path.exists("canvas_session.json"):
-            browser = p.chromium.launch(headless=False)
+            browser = p.chromium.launch(headless=True)
             context = browser.new_context()
             page = context.new_page()
             page.goto(f"https://{config['canvas_url']}")
@@ -47,8 +47,9 @@ def normalize_date(date_str):
 
 all_assignments = []
 
+# Gradescope scraper
 with sync_playwright() as p:
-    browser = p.chromium.launch(headless=False)
+    browser = p.chromium.launch(headless=True)
     context = browser.new_context(storage_state="session.json")
     page = context.new_page()
 
@@ -64,7 +65,6 @@ with sync_playwright() as p:
         print(f"Scraping {course['name']}...")
         page.goto(course["url"])
         page.wait_for_load_state("networkidle")
-        page.wait_for_timeout(500)
 
         html = page.content()
         soup = BeautifulSoup(html, "html.parser")
@@ -102,7 +102,7 @@ with sync_playwright() as p:
 
 # Canvas scraper
 with sync_playwright() as p:
-    browser = p.chromium.launch(headless=False)
+    browser = p.chromium.launch(headless=True)
     context = browser.new_context(storage_state="canvas_session.json")
     page = context.new_page()
 
