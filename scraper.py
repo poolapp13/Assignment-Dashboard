@@ -201,9 +201,13 @@ for a in all_assignments:
 all_assignments = filtered_assignments
 
 
-# Save everything to JSON
+output = {
+    "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    "assignments": all_assignments
+}
+
 with open("assignments.json", "w") as f:
-    json.dump(all_assignments, f, indent=2)
+    json.dump(output, f, indent=2)
 
 print(
     f"\nTotal: {len(all_assignments)} unsubmitted assignments saved to assignments.json")

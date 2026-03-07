@@ -430,8 +430,11 @@
         return r.json();
       })
       .then(data => {
-        allData = data;
-        console.log(allData[0].due_date, parseDate(allData[0].due_date));
+        allData = data.assignments;
+        const updated = new Date(data.last_updated);
+        const hoursAgo = Math.round((new Date() - updated) / 1000 / 3600);
+        const label = hoursAgo === 0 ? "just now" : hoursAgo === 1 ? "1 hour ago" : `${hoursAgo} hours ago`;
+        document.getElementById('lastUpdated').textContent = "Updated " + label;
         render();
       })
       .catch(err => {
