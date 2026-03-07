@@ -1,9 +1,15 @@
+from dateutil import parser as dateparser
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 from datetime import datetime
 import json
 import os
 
+# Load config
+with open("config.json", "r") as f:
+    config = json.load(f)
+
+base_url = f"https://{config['canvas_url']}"
 # Create sessions if they don't exist
 if not os.path.exists("session.json") or not os.path.exists("canvas_session.json"):
     with sync_playwright() as p:
@@ -22,13 +28,11 @@ if not os.path.exists("session.json") or not os.path.exists("canvas_session.json
             browser = p.chromium.launch(headless=False)
             context = browser.new_context()
             page = context.new_page()
-            page.goto("https://canvas.its.virginia.edu")
+            page.goto(f"https://{config['canvas_url']}")
             input("Log into Canvas, then press Enter...")
             context.storage_state(path="canvas_session.json")
             print("Canvas session saved!")
             browser.close()
-
-from dateutil import parser as dateparser
 
 
 def normalize_date(date_str):
@@ -54,17 +58,7 @@ with sync_playwright() as p:
     html = page.content()
     soup = BeautifulSoup(html, "html.parser")
 
-    CURRENT_COURSES = ["26Sp", "26 Spring"]
-
-    course_boxes = soup.find_all("a", class_="courseBox")
-    current_courses = []
-    for course in course_boxes:
-        name = course.find("div", class_="courseBox--name")
-        if name:
-            course_name = name.get_text(strip=True)
-            link = "https://www.gradescope.com" + course.get("href", "")
-            if any(keyword in course_name for keyword in CURRENT_COURSES):
-                current_courses.append({"name": course_name, "url": link})
+    current_courses = config["gradescope_courses"]
 
     for course in current_courses:
         print(f"Scraping {course['name']}...")
@@ -112,12 +106,9 @@ with sync_playwright() as p:
     context = browser.new_context(storage_state="canvas_session.json")
     page = context.new_page()
 
-    base_url = "https://canvas.its.virginia.edu/"
+    base_url = f"https://{config['canvas_url']}"
 
-    canvas_courses = [
-        {"name": "26Sp Digital Logic Design", "id": "167319"},
-        {"name": "Engineering Foundations II", "id": "167139"},
-    ]
+    canvas_courses = config["canvas_courses"]
 
     for course in canvas_courses:
         print(f"\nScraping {course['name']}...")
@@ -210,10 +201,3 @@ with open("assignments.json", "w") as f:
 
 print(
     f"\nTotal: {len(all_assignments)} unsubmitted assignments saved to assignments.json")
-
-
-# Save to JSON
-with open("assignments.json", "w") as f:
-    json.dump(all_assignments, f, indent=2)
-
-print(f"\nSaved {len(all_assignments)} assignments to assignments.json")
