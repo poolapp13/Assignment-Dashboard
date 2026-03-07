@@ -1,23 +1,30 @@
 from playwright.sync_api import sync_playwright
-
-email = "gfz5au@email.com"
-password = "Drjie_5004!!"
+import json
+import os
 
 with sync_playwright() as p:
     browser = p.chromium.launch(headless=False)
-    page = browser.new_page()
 
+    # Check if we already have a saved session
+    if os.path.exists("session.json"):
+        context = browser.new_context(storage_state="session.json")
+        print("Loaded saved session")
+    else:
+        context = browser.new_context()
+
+    page = context.new_page()
     page.goto("https://www.gradescope.com")
 
-    # Fill in the login form
-    page.fill('input[name="session[email]"]', email)
-    page.fill('input[name="session[password]"]', password)
-    page.click('input[type="submit"]')
+    # If not logged in, wait for you to log in manually
+    if "dashboard" not in page.url:
+        print("Please log in manually in the browser window...")
+        # waits up to 2 minutes
+        page.wait_for_url("**/dashboard**", timeout=120000)
 
-    # Wait for the dashboard to load
-    page.wait_for_load_state("networkidle")
+        # Save the session so next time is automatic
+        context.storage_state(path="session.json")
+        print("Session saved!")
 
     print(page.title())
-
     input("Press Enter to close...")
     browser.close()
