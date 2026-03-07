@@ -57,7 +57,7 @@ with sync_playwright() as p:
                     break
 
             # Only include assignments with a due date
-            if due_date:
+            if due_date and "Submitted" not in status and "/" not in status:
                 all_assignments.append({
                     "name": name,
                     "course": course["name"],
