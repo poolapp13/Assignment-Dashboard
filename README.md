@@ -28,11 +28,11 @@ A personal dashboard that pulls your upcoming assignments from **Gradescope** an
 
 If you have Git installed:
 
-git clone https://github.com/YOUR_USERNAME/assignment-dashboard
-cd assignment-dashboard
+git clone https://github.com/YOUR_USERNAME/Assignment-Dashboard
+cd Assignment-Dashboard
 
 
-Or click the green **Code** button on GitHub and select **Download ZIP**, then extract it.
+OR click the green **Code** button on GitHub and select **Download ZIP**, then extract it.
 
 
 
