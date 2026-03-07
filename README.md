@@ -18,9 +18,9 @@ A personal dashboard that pulls your upcoming assignments from **Gradescope** an
    - **Windows:** check the box that says **"Add Python to PATH"** before clicking Install
    - **Mac/Linux:** the defaults are fine
 4. Verify it worked by opening a terminal and running:
-
+```
    python --version
-
+```
    You should see something like `Python 3.12.0`
 
 
@@ -50,9 +50,9 @@ This installs all the required libraries and downloads the browser Playwright us
 
 ## Step 4 — Run setup
 
-
+```
 python setup.py
-
+```
 
 This will:
 1. Ask for your Canvas URL (e.g. `canvas.university.edu`)
@@ -67,9 +67,9 @@ You only need to run setup once (or again if your courses change each semester).
 
 ## Step 5 — Fetch your assignments
 
-
+```
 python scraper.py
-
+```
 This opens your Gradescope and Canvas, scrapes all upcoming unsubmitted assignments, and saves them to `assignments.json`.
 
 
@@ -77,9 +77,9 @@ This opens your Gradescope and Canvas, scrapes all upcoming unsubmitted assignme
 ## Step 6 — View the dashboard
 
 Start the local server:
-
+```
 python -m http.server
-
+```
 
 Then open your browser and go to:
 
