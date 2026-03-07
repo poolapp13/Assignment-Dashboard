@@ -88,6 +88,13 @@ http://localhost:8000/dashboard.html
 
 You'll see all your upcoming assignments sorted by due date with color-coded urgency.
 
+## Step 7 — Set up automatic updates (Windows)
+
+1. Copy `start_server.bat.example` and rename it to `start_server.bat`
+2. Open it and replace the path with your actual project folder path
+   - To find your path, open a terminal in the project folder and run `pwd`
+3. Add `start_server.bat` to Task Scheduler set to run on login
+
 
 
 ## Daily workflow
