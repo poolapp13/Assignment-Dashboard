@@ -4,6 +4,19 @@ from datetime import datetime
 import json
 import os
 
+from dateutil import parser as dateparser
+
+
+def normalize_date(date_str):
+    # If it's already a full datetime string, return as is
+    if "-" in date_str and ":" in date_str and len(date_str) > 15:
+        return date_str
+    # Otherwise parse and convert Canvas format like "Mar 8 at 11:59pm"
+    cleaned = date_str.replace(" at ", " ")
+    dt = dateparser.parse(cleaned, default=datetime(2026, 1, 1))
+    return dt.strftime("%Y-%m-%d %H:%M:%S -0500")
+
+
 all_assignments = []
 
 with sync_playwright() as p:
@@ -33,7 +46,7 @@ with sync_playwright() as p:
         print(f"Scraping {course['name']}...")
         page.goto(course["url"])
         page.wait_for_load_state("networkidle")
-        page.wait_for_timeout(1000)
+        page.wait_for_timeout(500)
 
         html = page.content()
         soup = BeautifulSoup(html, "html.parser")
@@ -63,7 +76,7 @@ with sync_playwright() as p:
                     "name": name,
                     "course": course["name"],
                     "status": status,
-                    "due_date": due_date,
+                    "due_date": normalize_date(due_date),
                     "source": "gradescope"
                 })
 
@@ -89,7 +102,7 @@ with sync_playwright() as p:
         for section in ["assignments", "quizzes"]:
             page.goto(f"{base_url}/courses/{course['id']}/{section}")
             page.wait_for_load_state("networkidle")
-            page.wait_for_timeout(1000)
+            page.wait_for_timeout(500)
 
             html = page.content()
             soup = BeautifulSoup(html, "html.parser")
@@ -117,7 +130,7 @@ with sync_playwright() as p:
                         href if href.startswith("/") else href
                     page.goto(full_url)
                     page.wait_for_load_state("networkidle")
-                    page.wait_for_timeout(1000)
+                    page.wait_for_timeout(500)
 
                     detail_html = page.content()
                     detail_soup = BeautifulSoup(detail_html, "html.parser")
@@ -130,7 +143,7 @@ with sync_playwright() as p:
                         page.goto(
                             f"{base_url}/courses/{course['id']}/{section}")
                         page.wait_for_load_state("networkidle")
-                        page.wait_for_timeout(1000)
+                        page.wait_for_timeout(500)
                         continue
 
                 all_assignments.append({
@@ -138,7 +151,7 @@ with sync_playwright() as p:
                     "name": name_text,
                     "course": course["name"],
                     "status": score_text,
-                    "due_date": due_text,
+                    "due_date": normalize_date(due_text),
                     "source": "canvas"
                 })
                 print(f"  {name_text} | {due_text} | {score_text}")
@@ -146,7 +159,7 @@ with sync_playwright() as p:
                 # Go back
                 page.goto(f"{base_url}/courses/{course['id']}/{section}")
                 page.wait_for_load_state("networkidle")
-                page.wait_for_timeout(1000)
+                page.wait_for_timeout(100)
 
     browser.close()
 

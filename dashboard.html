@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inconsolata:wght@300;400;500&display=swap');
+
+    :root {
+      --bg: #f5f2eb;
+      --surface: #edeade;
+      --border: #d4cfc4;
+      --dark: #1a1814;
+      --text: #2c2a26;
+      --muted: #8c8880;
+      --urgent: #c94030;
+      --soon: #c47820;
+      --ok: #2a6e48;
+      --canvas-accent: #c94030;
+      --gradescope-accent: #1a4a8a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inconsolata', monospace;
+      min-height: 100vh;
+      padding: 48px 32px;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(0, 0, 0, 0.04) 39px, rgba(0, 0, 0, 0.04) 40px),
+        repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(0, 0, 0, 0.03) 39px, rgba(0, 0, 0, 0.03) 40px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    header {
+      margin-bottom: 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 2px solid var(--dark);
+      padding-bottom: 20px;
+    }
+
+    .header-left h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      color: var(--dark);
+    }
+
+    .header-left h1 span {
+      color: var(--urgent);
+    }
+
+    .header-right {
+      text-align: right;
+    }
+
+    .date-display {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .last-updated {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 40px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+
+    .stat-card.urgent::before {
+      background: var(--urgent);
+    }
+
+    .stat-card.soon::before {
+      background: var(--soon);
+    }
+
+    .stat-card.ok::before {
+      background: var(--ok);
+    }
+
+    .stat-card.total::before {
+      background: var(--dark);
+    }
+
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-card.urgent .stat-num {
+      color: var(--urgent);
+    }
+
+    .stat-card.soon .stat-num {
+      color: var(--soon);
+    }
+
+    .stat-card.ok .stat-num {
+      color: var(--ok);
+    }
+
+    .stat-card.total .stat-num {
+      color: var(--dark);
+    }
+
+    .stat-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    /* Filter tabs */
+    .filters {
+      display: flex;
+      gap: 0;
+      margin-bottom: 24px;
+      border: 1px solid var(--border);
+      width: fit-content;
+    }
+
+    .filter-btn {
+      padding: 8px 18px;
+      font-family: 'Inconsolata', monospace;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      border-right: 1px solid var(--border);
+      transition: all 0.15s;
+    }
+
+    .filter-btn:last-child {
+      border-right: none;
+    }
+
+    .filter-btn.active {
+      background: var(--dark);
+      color: var(--bg);
+    }
+
+    .filter-btn:hover:not(.active) {
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    /* Assignment list */
+    .assignment-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .day-group {
+      margin-bottom: 28px;
+    }
+
+    .day-header {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      padding: 0 0 8px 0;
+      margin-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .day-header.urgent-day {
+      color: var(--urgent);
+      border-color: var(--urgent);
+    }
+
+    .day-header.soon-day {
+      color: var(--soon);
+      border-color: var(--soon);
+    }
+
+    .assignment-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: none;
+      padding: 14px 20px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+      transition: background 0.15s;
+      opacity: 0;
+      animation: fadeIn 0.25s forwards;
+    }
+
+    .assignment-card:first-child {
+      border-top: 1px solid var(--border);
+    }
+
+    .assignment-card:hover {
+      background: #e8e4db;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    .card-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 5px;
+    }
+
+    .card-meta {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .course-tag {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+
+    .source-badge {
+      font-size: 0.6rem;
+      padding: 2px 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 500;
+    }
+
+    .source-canvas {
+      background: rgba(201, 64, 48, 0.1);
+      color: var(--canvas-accent);
+      border: 1px solid rgba(201, 64, 48, 0.25);
+    }
+
+    .source-gradescope {
+      background: rgba(26, 74, 138, 0.1);
+      color: var(--gradescope-accent);
+      border: 1px solid rgba(26, 74, 138, 0.25);
+    }
+
+    .card-right {
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .due-time {
+      font-size: 0.78rem;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .time-left {
+      font-size: 0.68rem;
+      margin-top: 3px;
+      white-space: nowrap;
+      font-weight: 500;
+    }
+
+    .time-left.urgent {
+      color: var(--urgent);
+    }
+
+    .time-left.soon {
+      color: var(--soon);
+    }
+
+    .time-left.ok {
+      color: var(--muted);
+    }
+
+    /* Empty / error states */
+    .empty {
+      text-align: center;
+      padding: 64px 32px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      border: 1px dashed var(--border);
+    }
+
+    .empty .big {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--ok);
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .error {
+      background: rgba(201, 64, 48, 0.08);
+      border: 1px solid rgba(201, 64, 48, 0.3);
+      padding: 16px 20px;
+      color: var(--urgent);
+      font-size: 0.8rem;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 48px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <header>
+      <div class="header-left">
+        <h1>assign<span>.</span></h1>
+      </div>
+      <div class="header-right">
+        <div class="date-display" id="currentDate"></div>
+        <div class="last-updated" id="lastUpdated"></div>
+      </div>
+    </header>
+
+    <div id="errorBox" style="display:none" class="error"></div>
+
+    <div class="stats" id="statsBar"></div>
+
+    <div class="filters">
+      <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+      <button class="filter-btn" onclick="setFilter('urgent', this)">Due Soon</button>
+      <button class="filter-btn" onclick="setFilter('canvas', this)">Canvas</button>
+      <button class="filter-btn" onclick="setFilter('gradescope', this)">Gradescope</button>
+    </div>
+
+    <div class="assignment-list" id="assignmentList"></div>
+
+    <footer>
+      <span>assign. dashboard</span>
+      <span>canvas + gradescope</span>
+    </footer>
+
+  </div>
+
+  <script>
+    let allData = [];
+    let currentFilter = 'all';
+
+    // Set current date
+    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', {
+      weekday: 'long', month: 'long', day: 'numeric'
+    });
+
+    // Load assignments.json
+    fetch('assignments.json')
+      .then(r => {
+        if (!r.ok) throw new Error('Could not load assignments.json — make sure the Python server is running and you have run the scraper.');
+        return r.json();
+      })
+      .then(data => {
+        allData = data;
+        console.log(allData[0].due_date, parseDate(allData[0].due_date));
+        render();
+      })
+      .catch(err => {
+        document.getElementById('errorBox').style.display = 'block';
+        document.getElementById('errorBox').textContent = '⚠ ' + err.message;
+      });
+
+    function setFilter(f, el) {
+      currentFilter = f;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      render();
+    }
+
+    function parseDate(dateStr) {
+      if (!dateStr || typeof dateStr !== 'string') return new Date(0);
+      const cleaned = dateStr.replace(' -0400', '').replace(' -0500', '').replace(' ', 'T');
+      return new Date(cleaned);
+    }
+
+    function hoursUntil(dateStr) {
+      return (parseDate(dateStr) - new Date()) / 1000 / 3600;
+    }
+
+    function urgency(dateStr) {
+      const h = hoursUntil(dateStr);
+      if (h < 24) return 'urgent';
+      if (h < 72) return 'soon';
+      return 'ok';
+    }
+
+    function formatDueDate(dateStr) {
+      const d = parseDate(dateStr);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) +
+        ' · ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    }
+
+    function formatTimeLeft(dateStr) {
+      const h = hoursUntil(dateStr);
+      if (h < 0) return 'overdue';
+      if (h < 24) return `${Math.round(h)}h left`;
+      if (h < 48) return 'tomorrow';
+      return `${Math.round(h / 24)}d left`;
+    }
+
+    function groupByDay(assignments) {
+      const groups = {};
+      for (const a of assignments) {
+        const d = parseDate(a.due_date);
+        const key = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+        if (!groups[key]) groups[key] = { label: key, date: d, items: [] };
+        groups[key].items.push(a);
+      }
+      return Object.values(groups).sort((a, b) => a.date - b.date);
+    }
+
+    function render() {
+      const now = new Date();
+
+      let filtered = allData.filter(a => parseDate(a.due_date) > now);
+
+      if (currentFilter === 'urgent') {
+        filtered = filtered.filter(a => hoursUntil(a.due_date) < 72);
+      } else if (currentFilter === 'canvas') {
+        filtered = filtered.filter(a => a.source === 'canvas');
+      } else if (currentFilter === 'gradescope') {
+        filtered = filtered.filter(a => a.source === 'gradescope');
+      }
+
+      filtered.sort((a, b) => parseDate(a.due_date) - parseDate(b.due_date));
+
+      // Stats (always from full data)
+      const upcoming = allData.filter(a => parseDate(a.due_date) > now);
+      const urgent = upcoming.filter(a => hoursUntil(a.due_date) < 24).length;
+      const soon = upcoming.filter(a => { const h = hoursUntil(a.due_date); return h >= 24 && h < 72; }).length;
+      const later = upcoming.filter(a => hoursUntil(a.due_date) >= 72).length;
+
+      document.getElementById('statsBar').innerHTML = `
+      <div class="stat-card total">
+        <div class="stat-num">${upcoming.length}</div>
+        <div class="stat-label">Total Upcoming</div>
+      </div>
+      <div class="stat-card urgent">
+        <div class="stat-num">${urgent}</div>
+        <div class="stat-label">Due &lt; 24h</div>
+      </div>
+      <div class="stat-card soon">
+        <div class="stat-num">${soon}</div>
+        <div class="stat-label">Due This Week</div>
+      </div>
+      <div class="stat-card ok">
+        <div class="stat-num">${later}</div>
+        <div class="stat-label">Later</div>
+      </div>
+    `;
+
+      const list = document.getElementById('assignmentList');
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="empty"><span class="big">All clear!</span>No assignments match this filter.</div>';
+        return;
+      }
+
+      const groups = groupByDay(filtered);
+      let html = '';
+
+      groups.forEach((group, gi) => {
+        const dayUrgency = urgency(group.date);
+        const headerClass = dayUrgency === 'urgent' ? 'urgent-day' : dayUrgency === 'soon' ? 'soon-day' : '';
+        html += `<div class="day-group">`;
+        html += `<div class="day-header ${headerClass}">${group.label}</div>`;
+
+        group.items.forEach((a, i) => {
+          const u = urgency(a.due_date);
+          const delay = (gi * 3 + i) * 40;
+          html += `
+          <div class="assignment-card" style="animation-delay:${delay}ms">
+            <div>
+              <div class="card-name">${esc(a.name)}</div>
+              <div class="card-meta">
+                <span class="course-tag">${esc(a.course)}</span>
+                <span class="source-badge source-${a.source}">${a.source}</span>
+              </div>
+            </div>
+            <div class="card-right">
+              <div class="due-time">${formatDueDate(a.due_date)}</div>
+              <div class="time-left ${u}">${formatTimeLeft(a.due_date)}</div>
+            </div>
+          </div>`;
+        });
+
+        html += `</div>`;
+      });
+
+      list.innerHTML = html;
+    }
+
+    function esc(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+  </script>
+</body>
+
+</html>
