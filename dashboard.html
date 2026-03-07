@@ -548,7 +548,7 @@
           html += `
           <div class="assignment-card" style="animation-delay:${delay}ms">
             <div>
-              <div class="card-name">${esc(a.name)}</div>
+              <div class="card-name" style="cursor:pointer" onclick="openAssignment('${esc(a.url)}', '${a.source}')">${esc(a.name)}</div>
               <div class="card-meta">
                 <span class="course-tag">${esc(a.course)}</span>
                 <span class="source-badge source-${a.source}">${a.source}</span>
@@ -569,6 +569,19 @@
 
     function esc(s) {
       return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    function openAssignment(url, source) {
+      const isFallback = url === "https://www.gradescope.com" ||
+        url === `https://${window.location.hostname}` ||
+        url.startsWith("http://localhost") ||
+        url === `https://canvas.its.virginia.edu` ||
+        url === `https://canvas.its.virginia.edu/`;
+
+      if (isFallback) {
+        alert("Direct link unavailable — opening the homepage instead.");
+      }
+
+      window.open(url, "_blank");
     }
   </script>
 </body>

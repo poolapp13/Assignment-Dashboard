@@ -76,6 +76,9 @@ with sync_playwright() as p:
                 continue
 
             name = name_cell.get_text(strip=True)
+            link_el = name_cell.find("a")
+            assignment_url = "https://www.gradescope.com" + \
+                link_el.get("href", "") if link_el else ""
 
             status_cell = row.find("td", class_="submissionStatus")
             status = status_cell.get_text(strip=True) if status_cell else ""
@@ -90,12 +93,14 @@ with sync_playwright() as p:
 
             # Only include assignments with a due date
             if due_date and "Submitted" not in status and "/" not in status:
+                assignment_url = assignment_url if assignment_url else "https://www.gradescope.com"
                 all_assignments.append({
                     "name": name,
                     "course": course["name"],
                     "status": status,
                     "due_date": normalize_date(due_date),
-                    "source": "gradescope"
+                    "source": "gradescope",
+                    "url": assignment_url
                 })
 
     browser.close()
@@ -160,14 +165,15 @@ with sync_playwright() as p:
                         page.wait_for_load_state("networkidle")
                         page.wait_for_timeout(500)
                         continue
-
+                full_url = full_url if full_url else f"https://{config['canvas_url']}"
                 all_assignments.append({
 
                     "name": name_text,
                     "course": course["name"],
                     "status": score_text,
                     "due_date": normalize_date(due_text),
-                    "source": "canvas"
+                    "source": "canvas",
+                    "url": full_url
                 })
                 print(f"  {name_text} | {due_text} | {score_text}")
 
