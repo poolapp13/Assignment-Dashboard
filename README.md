@@ -27,10 +27,10 @@ A personal dashboard that pulls your upcoming assignments from **Gradescope** an
 ## Step 2 — Download this project
 
 If you have Git installed:
-
+```
 git clone https://github.com/poolapp13/Assignment-Dashboard
 cd Assignment-Dashboard
-
+```
 
 OR click the green **Code** button on GitHub and select **Download ZIP**, then extract it.
 
