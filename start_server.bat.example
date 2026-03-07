@@ -1,6 +1,7 @@
 @echo off
 cd C:\YOUR\PATH\TO\Assignment-Dashboard
-python scraper.py > scraper.log 2>&1
 start /min python -m http.server
+python scraper.py > scraper.log 2>&1
+
 
 

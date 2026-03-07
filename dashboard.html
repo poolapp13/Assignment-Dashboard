@@ -422,6 +422,8 @@
     });
 
     // Load assignments.json
+    document.getElementById('assignmentList').innerHTML = '<div class="empty">Fetching your assignments, please wait...</div>';
+
     fetch('assignments.json')
       .then(r => {
         if (!r.ok) throw new Error('Could not load assignments.json — make sure the Python server is running and you have run the scraper.');
