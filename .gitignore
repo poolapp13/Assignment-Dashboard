@@ -3,5 +3,6 @@ canvas_session.json
 assignments.json
 config.json
 start_server.bat
+scraper.log
 .env
 __pycache__/
