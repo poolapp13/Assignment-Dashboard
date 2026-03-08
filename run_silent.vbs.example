@@ -1,3 +1,3 @@
 Set WshShell = CreateObject("WScript.Shell")
-WshShell.Run "C:\YOUR\PATH\TO\Assignment-Dashboard\start_server.bat", 0, False
+WshShell.Run "python C:\YOUR\PATH\TO\Assignment-Dashboard\start_server.bat", 0, False
 Set WshShell = Nothing
