@@ -143,47 +143,10 @@ with sync_playwright() as p:
                     continue
 
                 # Click into assignment to check submission status
-                link = row.find("a", class_="ig-title")
-                if link:
-                    href = link.get("href", "")
-                    full_url = base_url + \
-                        href if href.startswith("/") else href
-                    page.goto(full_url)
-                    page.wait_for_load_state("networkidle")
-                    page.wait_for_timeout(500)
-
-                    detail_html = page.content()
-                    detail_soup = BeautifulSoup(detail_html, "html.parser")
-                    tracker = detail_soup.find(
-                        class_="assignment-student-submission-tracker")
-
-                    if tracker and "Submitted" in tracker.get_text():
-                        print(f"  Skipping {name_text} - already submitted")
-                        # Go back to assignments page
-                        page.goto(
-                            f"{base_url}/courses/{course['id']}/{section}")
-                        page.wait_for_load_state("networkidle")
-                        page.wait_for_timeout(500)
-                        continue
-                full_url = full_url if full_url else f"https://{config['canvas_url']}"
-                all_assignments.append({
-
-                    "name": name_text,
-                    "course": course["name"],
-                    "status": score_text,
-                    "due_date": normalize_date(due_text),
-                    "source": "canvas",
-                    "url": full_url
-                })
-                print(f"  {name_text} | {due_text} | {score_text}")
-
-                # Go back
-                page.goto(f"{base_url}/courses/{course['id']}/{section}")
-                page.wait_for_load_state("networkidle")
-                page.wait_for_timeout(100)
-
-    browser.close()
-
+                status_div = row.find("div", class_="submissionStatus")
+                if status_div and "submissionStatus-complete" in status_div.get("class", []):
+                    print(f"  Skipping {name_text} - already submitted")
+                    continue
 
 # Get all gradescope assignment names (lowercase for comparison)
 gradescope_names = set(a["name"].lower()
