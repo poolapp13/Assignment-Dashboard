@@ -99,7 +99,7 @@ Use the dashboard's refresh button to update the dashboard.
 4. Open **Task Scheduler** (search for it in the Start menu)
 5. Click **Create Basic Task**
 6. Name it `Assignment Dashboard`
-7. Set trigger to **When I log on**
+7. Set trigger to **On workstation unlock**
 8. Action: **Start a program**
 9. Program: browse to your `run_silent.vbs` file
 10. Click **Finish**
