@@ -70,7 +70,7 @@ You only need to run setup once (or again if your courses change each semester).
 ```
 python scraper.py
 ```
-This opens your Gradescope and Canvas, scrapes all upcoming unsubmitted assignments, and saves them to `assignments.json`.
+This opens your Gradescope and Canvas in the background, scrapes all upcoming unsubmitted assignments, and saves them to `assignments.json`.
 
 
 
@@ -87,24 +87,27 @@ http://localhost:8000/dashboard.html
 
 
 You'll see all your upcoming assignments sorted by due date with color-coded urgency.
+Use the dashboard's refresh button to update the dashboard.
 
 ## Step 7 — Set up automatic updates (Windows)
 
 1. Copy `start_server.bat.example` and rename it to `start_server.bat`
 2. Repeat with `run_silent.vbs.example` and `refresh_hidden.vbs.example`
-3. Open them and replace the path with your actual project folder path
+3. Open them and replace `C:\YOUR\PATH\TO\Assignment-Dashboard` with your actual project folder path
    - To find your path, open a terminal in the project folder and run `pwd`
-4. Add `run_silent.vbs` to Task Scheduler set to run on login
 
+4. Open **Task Scheduler** (search for it in the Start menu)
+5. Click **Create Basic Task**
+6. Name it `Assignment Dashboard`
+7. Set trigger to **When I log on**
+8. Action: **Start a program**
+9. Program: browse to your `run_silent.vbs` file
+10. Click **Finish**
 
-
-## Daily workflow
-
-Whenever you want to update your assignments:
-
-1. Run `python scraper.py`
-2. Run `python -m http.server`
-3. Open `http://localhost:8000/dashboard.html`
+From now on, every time you log into Windows:
+- The scraper will run silently and fetch fresh assignments
+- The local server will start in the background
+- Open `http://localhost:8000/dashboard.html` in your browser to view your dashboard. I would recommend bookmarking the webpage
 
 
 
