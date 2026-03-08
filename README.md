@@ -70,7 +70,7 @@ You only need to run setup once (or again if your courses change each semester).
 ```
 python scraper.py
 ```
-This opens your Gradescope and Canvas, scrapes all upcoming unsubmitted assignments, and saves them to `assignments.json`.
+This opens your Gradescope and Canvas in the background, scrapes all upcoming unsubmitted assignments, and saves them to `assignments.json`.
 
 
 
@@ -87,6 +87,7 @@ http://localhost:8000/dashboard.html
 
 
 You'll see all your upcoming assignments sorted by due date with color-coded urgency.
+Use the dashboard's refresh button to update the dashboard.
 
 ## Step 7 — Set up automatic updates (Windows)
 
@@ -107,16 +108,6 @@ From now on, every time you log into Windows:
 - The scraper will run silently and fetch fresh assignments
 - The local server will start in the background
 - Open `http://localhost:8000/dashboard.html` in your browser to view your dashboard. I would recommend bookmarking the webpage
-
-
-
-## Daily workflow
-
-Whenever you want to update your assignments:
-
-1. Run `python scraper.py`
-2. Run `python -m http.server`
-3. Open `http://localhost:8000/dashboard.html`
 
 
 
