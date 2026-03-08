@@ -428,24 +428,35 @@
     // Load assignments.json
     document.getElementById('assignmentList').innerHTML = '<div class="empty">Fetching your assignments, please wait...</div>';
 
-    fetch('assignments.json')
-      .then(r => {
-        if (!r.ok) throw new Error('Could not load assignments.json — make sure the Python server is running and you have run the scraper.');
-        return r.json();
-      })
-      .then(data => {
-        allData = data.assignments;
-        const updated = new Date(data.last_updated);
-        const hoursAgo = Math.round((new Date() - updated) / 1000 / 3600);
-        const label = hoursAgo === 0 ? "just now" : hoursAgo === 1 ? "1 hour ago" : `${hoursAgo} hours ago`;
-        document.getElementById('lastUpdated').textContent = "Updated " + label;
-        render();
-      })
-      .catch(err => {
-        document.getElementById('errorBox').style.display = 'block';
-        document.getElementById('errorBox').textContent = '⚠ ' + err.message;
-      });
-
+    function loadWhenReady() {
+      fetch('http://localhost:8001/status')
+        .then(r => r.json())
+        .then(data => {
+          if (data.running) {
+            setTimeout(loadWhenReady, 2000);
+          } else {
+            fetch('assignments.json?nocache=' + Date.now())
+              .then(r => {
+                if (!r.ok) throw new Error('Could not load assignments.json — make sure the Python server is running and you have run the scraper.');
+                return r.json();
+              })
+              .then(data => {
+                allData = data.assignments;
+                const updated = new Date(data.last_updated);
+                const hoursAgo = Math.round((new Date() - updated) / 1000 / 3600);
+                const label = hoursAgo === 0 ? "just now" : hoursAgo === 1 ? "1 hour ago" : `${hoursAgo} hours ago`;
+                document.getElementById('lastUpdated').textContent = "Updated " + label;
+                render();
+              })
+              .catch(err => {
+                document.getElementById('errorBox').style.display = 'block';
+                document.getElementById('errorBox').textContent = '⚠ ' + err.message;
+              });
+          }
+        })
+        .catch(() => setTimeout(loadWhenReady, 2000));
+    }
+    loadWhenReady();
     function setFilter(f, el) {
       currentFilter = f;
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
