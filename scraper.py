@@ -107,7 +107,7 @@ with sync_playwright() as p:
 
 # Canvas scraper
 with sync_playwright() as p:
-    browser = p.chromium.launch(headless=False)
+    browser = p.chromium.launch(headless=True)
     context = browser.new_context(storage_state="canvas_session.json")
     page = context.new_page()
 
