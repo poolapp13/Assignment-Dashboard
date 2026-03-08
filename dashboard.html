@@ -598,24 +598,34 @@
       btn.disabled = true;
 
       fetch('http://localhost:8001/refresh')
-        .then(() => {
-          return fetch('assignments.json?nocache=' + Date.now());
-        })
-        .then(r => r.json())
-        .then(data => {
-          allData = data.assignments;
-          const updated = new Date(data.last_updated);
-          const hoursAgo = Math.round((new Date() - updated) / 1000 / 3600);
-          const label = hoursAgo === 0 ? "just now" : hoursAgo === 1 ? "1 hour ago" : `${hoursAgo} hours ago`;
-          document.getElementById('lastUpdated').textContent = "Updated " + label;
-          btn.textContent = '↻ Refresh';
-          btn.disabled = false;
-          render();
-        })
+        .then(() => pollUntilDone())
         .catch(() => {
           btn.textContent = '↻ Refresh';
           btn.disabled = false;
           alert('Refresh failed — make sure the refresh server is running.');
+        });
+    }
+
+    function pollUntilDone() {
+      fetch('http://localhost:8001/status')
+        .then(r => r.json())
+        .then(data => {
+          if (data.running) {
+            setTimeout(pollUntilDone, 2000);  // check again in 2 seconds
+          } else {
+            fetch('assignments.json?nocache=' + Date.now())
+              .then(r => r.json())
+              .then(data => {
+                allData = data.assignments;
+                const updated = new Date(data.last_updated);
+                const hoursAgo = Math.round((new Date() - updated) / 1000 / 3600);
+                const label = hoursAgo === 0 ? "just now" : hoursAgo === 1 ? "1 hour ago" : `${hoursAgo} hours ago`;
+                document.getElementById('lastUpdated').textContent = "Updated " + label;
+                document.getElementById('refreshBtn').textContent = '↻ Refresh';
+                document.getElementById('refreshBtn').disabled = false;
+                render();
+              });
+          }
         });
     }
   </script>
