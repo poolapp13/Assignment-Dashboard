@@ -471,8 +471,12 @@
             .then(data => {
               allData = data.assignments;
               const updated = new Date(data.last_updated);
-              const hoursAgo = Math.round((new Date() - updated) / 1000 / 3600);
-              const label = hoursAgo === 0 ? "just now" : hoursAgo === 1 ? "1 hour ago" : `${hoursAgo} hours ago`;
+              const minutesAgo = Math.round((new Date() - updated) / 1000 / 60);
+              const hoursAgo = Math.floor(minutesAgo / 60);
+              const label = minutesAgo < 1 ? "just now"
+                : minutesAgo < 60 ? `${minutesAgo}m ago`
+                  : hoursAgo === 1 ? "1 hour ago"
+                    : `${hoursAgo} hours ago`;
               document.getElementById('lastUpdated').textContent = "Updated " + label;
               render();
             })
