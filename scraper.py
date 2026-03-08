@@ -107,7 +107,7 @@ with sync_playwright() as p:
 
 # Canvas scraper
 with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
+    browser = p.chromium.launch(headless=False)
     context = browser.new_context(storage_state="canvas_session.json")
     page = context.new_page()
 
@@ -128,6 +128,7 @@ with sync_playwright() as p:
             soup = BeautifulSoup(html, "html.parser")
 
             rows = soup.find_all("div", class_="ig-row")
+
             for row in rows:
                 name = row.find(["div", "a"], class_="ig-title")
                 due = row.find("div", class_="assignment-date-due")
@@ -142,12 +143,33 @@ with sync_playwright() as p:
                 if not name_text or not due_text or "-/" not in score_text:
                     continue
 
-                # Click into assignment to check submission status
-                status_div = row.find("div", class_="submissionStatus")
-                if status_div and "submissionStatus-complete" in status_div.get("class", []):
-                    print(f"  Skipping {name_text} - already submitted")
+                # Check if already submitted via score-display title or screenreader text
+                score_display = row.find("span", class_="score-display")
+                screenreader = score.find(
+                    "span", class_="screenreader-only") if score else None
+
+                if score_display and score_display.get("title", "") == "No Submission":
+                    pass  # not submitted, include it
+                elif screenreader and "not yet graded" in screenreader.get_text().lower():
+                    print(f"  Skipping {name_text} - submitted but not graded")
+                    continue
+                elif "-/" not in score_text:
                     continue
 
+                link = row.find("a", class_="ig-title")
+                full_url = link.get(
+                    "href", "") if link else f"https://{config['canvas_url']}"
+                full_url = full_url if full_url else f"https://{config['canvas_url']}"
+
+                all_assignments.append({
+                    "name": name_text,
+                    "course": course["name"],
+                    "status": score_text,
+                    "due_date": normalize_date(due_text),
+                    "source": "canvas",
+                    "url": full_url
+                })
+                print(f"  {name_text} | {due_text} | {score_text}")
 # Get all gradescope assignment names (lowercase for comparison)
 gradescope_names = set(a["name"].lower()
                        for a in all_assignments if a["source"] == "gradescope")
