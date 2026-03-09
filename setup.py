@@ -25,7 +25,7 @@ with sync_playwright() as p:
     page = context.new_page()
     page.goto("https://www.gradescope.com")
     input("    Log into Gradescope in the browser, then press Enter here...")
-    context.storage_state(path="session.json")
+    context.storage_state(path="gradescope_session.json")
     print("    Session saved!")
 
     # Detect courses
