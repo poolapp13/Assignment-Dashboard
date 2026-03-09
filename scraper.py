@@ -10,30 +10,6 @@ with open("config.json", "r") as f:
     config = json.load(f)
 
 base_url = f"https://{config['canvas_url']}"
-# Create sessions if they don't exist
-if not os.path.exists("gradescope_session.json") or not os.path.exists("canvas_session.json"):
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
-
-        if not os.path.exists("gradescope_session.json"):
-            context = browser.new_context()
-            page = context.new_page()
-            page.goto("https://www.gradescope.com")
-            input("Log into Gradescope, then press Enter...")
-            context.storage_state(path="gradescope_session.json")
-            print("Gradescope session saved!")
-            browser.close()
-
-        if not os.path.exists("canvas_session.json"):
-            browser = p.chromium.launch(headless=False)
-            context = browser.new_context()
-            page = context.new_page()
-            page.goto(f"https://{config['canvas_url']}")
-            input("Log into Canvas, then press Enter...")
-            context.storage_state(path="canvas_session.json")
-            print("Canvas session saved!")
-            browser.close()
-
 
 def normalize_date(date_str):
     # If it's already a full datetime string, return as is
