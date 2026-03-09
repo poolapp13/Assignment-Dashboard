@@ -124,6 +124,21 @@ with sync_playwright() as p:
             page.wait_for_load_state("networkidle")
             page.wait_for_timeout(500)
 
+            # Check if session expired
+            if "login" in page.url or page.url == base_url + "/":
+                print("Canvas session expired — relaunching for login...")
+                browser.close()
+                browser = p.chromium.launch(headless=False)
+                context = browser.new_context()
+                page = context.new_page()
+                page.goto(base_url)
+                input("Log into Canvas, then press Enter...")
+                context.storage_state(path="canvas_session.json")
+                page.goto(f"{base_url}/courses/{course['id']}/{section}")
+                page.wait_for_load_state("networkidle")
+                page.wait_for_timeout(500)
+            
+            
             html = page.content()
             soup = BeautifulSoup(html, "html.parser")
 
