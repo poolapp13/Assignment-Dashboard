@@ -419,7 +419,7 @@
         <button class="filter-btn" onclick="setFilter('gradescope', this)">Gradescope</button>
       </div>
       <button class="filter-btn" id="refreshBtn" onclick="refreshData()" style="border:1px solid var(--border)">↻
-        Refresh</button>
+        Rescan</button>
     </div>
 
     <div class="assignment-list" id="assignmentList"></div>
@@ -639,15 +639,15 @@
     }
     function refreshData() {
       const btn = document.getElementById('refreshBtn');
-      btn.innerHTML = '<span class="spinning">↻</span> Refreshing...';
+      btn.innerHTML = '<span class="spinning">↻</span> Rescanning...';
       btn.disabled = true;
 
       fetch('http://localhost:8001/refresh')
         .then(() => pollUntilDone())
         .catch(() => {
-          btn.textContent = '↻ Refresh';
+          btn.textContent = '↻ Rescan';
           btn.disabled = false;
-          alert('Refresh failed — make sure the refresh server is running.');
+          alert('Rescan failed — make sure the rescan server is running.');
         });
     }
 
@@ -666,7 +666,7 @@
                 const hoursAgo = Math.round((new Date() - updated) / 1000 / 3600);
                 const label = hoursAgo === 0 ? "just now" : hoursAgo === 1 ? "1 hour ago" : `${hoursAgo} hours ago`;
                 document.getElementById('lastUpdated').textContent = "Updated " + label;
-                document.getElementById('refreshBtn').innerHTML = '↻ Refresh';
+                document.getElementById('refreshBtn').innerHTML = '↻ Rescan';
                 document.getElementById('refreshBtn').disabled = false;
                 render();
               });
