@@ -2,6 +2,9 @@ from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 import json
 import os
+import sys
+
+canvas_only = "--canvas-only" in sys.argv
 
 config = {}
 
@@ -17,49 +20,54 @@ canvas_url = canvas_url.replace(
 config["canvas_url"] = canvas_url
 
 with sync_playwright() as p:
-    # ─── GRADESCOPE ───────────────────────────────────────
-    print("\n[1/2] Setting up Gradescope...")
-    browser = p.chromium.launch(headless=False)
-    context = browser.new_context()
-    page = context.new_page()
-    page.goto("https://www.gradescope.com")
-    input("    Log into Gradescope in the browser, then press Enter here...")
-    context.storage_state(path="gradescope_session.json")
-    print("    Session saved!")
+    if not canvas_only:
+        # ─── GRADESCOPE ───────────────────────────────────────
+        print("\n[1/2] Setting up Gradescope...")
+        browser = p.chromium.launch(headless=False)
+        context = browser.new_context()
+        page = context.new_page()
+        page.goto("https://www.gradescope.com")
+        input("    Log into Gradescope in the browser, then press Enter here...")
+        context.storage_state(path="gradescope_session.json")
+        print("    Session saved!")
 
-    # Detect courses
-    page.goto("https://www.gradescope.com")
-    page.wait_for_load_state("networkidle")
-    html = page.content()
-    soup = BeautifulSoup(html, "html.parser")
+        # Detect courses
+        page.goto("https://www.gradescope.com")
+        page.wait_for_load_state("networkidle")
+        html = page.content()
+        soup = BeautifulSoup(html, "html.parser")
 
-    course_boxes = soup.find_all("a", class_="courseBox")
-    gs_courses = []
-    for course in course_boxes:
-        name_el = course.find("div", class_="courseBox--name")
-        if name_el:
-            gs_courses.append({
-                "name": name_el.get_text(strip=True),
-                "url": "https://www.gradescope.com" + course.get("href", "")
-            })
+        course_boxes = soup.find_all("a", class_="courseBox")
+        gs_courses = []
+        for course in course_boxes:
+            name_el = course.find("div", class_="courseBox--name")
+            if name_el:
+                gs_courses.append({
+                    "name": name_el.get_text(strip=True),
+                    "url": "https://www.gradescope.com" + course.get("href", "")
+                })
 
-    print("\n    Found these Gradescope courses:")
-    for i, c in enumerate(gs_courses):
-        print(f"      [{i}] {c['name']}")
+        print("\n    Found these Gradescope courses:")
+        for i, c in enumerate(gs_courses):
+            print(f"      [{i}] {c['name']}")
 
-    print("\n    Enter the numbers of courses to REMOVE (comma separated),")
-    remove_input = input("    or just press Enter to keep all: ").strip()
+        print("\n    Enter the numbers of courses to REMOVE (comma separated),")
+        remove_input = input("    or just press Enter to keep all: ").strip()
 
-    if remove_input:
-        remove_indices = set(int(x.strip())
-                             for x in remove_input.split(",") if x.strip().isdigit())
-        gs_courses = [c for i, c in enumerate(
-            gs_courses) if i not in remove_indices]
+        if remove_input:
+            remove_indices = set(int(x.strip())
+                                for x in remove_input.split(",") if x.strip().isdigit())
+            gs_courses = [c for i, c in enumerate(
+                gs_courses) if i not in remove_indices]
 
-    config["gradescope_courses"] = gs_courses
-    print(f"\n    Keeping {len(gs_courses)} Gradescope courses.")
-    browser.close()
-    
+        config["gradescope_courses"] = gs_courses
+        print(f"\n    Keeping {len(gs_courses)} Gradescope courses.")
+        browser.close()
+    else:
+        if os.path.exists("gradescope_session.json"):
+            with open("config.json", "r") as f:
+                existing_config = json.load(f)
+                config["gradescope_courses"] = existing_config.get("gradescope_courses", [])
     # ─── CANVAS ───────────────────────────────────────────
     print("\n[2/2] Setting up Canvas...")
     browser = p.chromium.launch(headless=False)
