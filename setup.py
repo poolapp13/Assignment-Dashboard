@@ -17,7 +17,6 @@ canvas_url = canvas_url.replace(
 config["canvas_url"] = canvas_url
 
 with sync_playwright() as p:
-
     # ─── GRADESCOPE ───────────────────────────────────────
     print("\n[1/2] Setting up Gradescope...")
     browser = p.chromium.launch(headless=False)
@@ -60,7 +59,7 @@ with sync_playwright() as p:
     config["gradescope_courses"] = gs_courses
     print(f"\n    Keeping {len(gs_courses)} Gradescope courses.")
     browser.close()
-
+    
     # ─── CANVAS ───────────────────────────────────────────
     print("\n[2/2] Setting up Canvas...")
     browser = p.chromium.launch(headless=False)
